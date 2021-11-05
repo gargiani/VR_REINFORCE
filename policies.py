@@ -20,7 +20,13 @@ class GaussianPolicy:
         if self.policy == None:
             raise ValueError("Distribution not defined!")
         else:
-            return self.policy.sample()      
+            return self.policy.sample()     
+
+    def log_prob(self, observations, actions, batch_size):
+
+        self.distribution(observations)
+        
+        return (1/batch_size)*self.policy.log_prob(actions) 
         
 class Neural_SoftMax:
 
@@ -44,12 +50,12 @@ class Neural_SoftMax:
         else:
             return torch.argmax(self.policy, dim=1)
 
-    def avg_score(self, observations, actions, batch_size):
+    def log_prob(self, observations, actions, batch_size):
 
         self.distribution(observations)
         actions_idx = torch.unsqueeze(actions, 1)
         
-        return (1/batch_size)*torch.log(torch.gather(self.policy, 1, actions_idx)).sum()
+        return (1/batch_size)*torch.log(torch.gather(self.policy, 1, actions_idx))
         
         
 class neuralnet(nn.Module):

@@ -1,4 +1,4 @@
-from methods import NumericalMethod
+from methods import GPOMDP, NumericalMethod
 from policies import GaussianPolicy
 import torch
 import gym
@@ -132,7 +132,7 @@ class LunarLander(Environment):
 if __name__ == "__main__":
 
     from policies import Neural_SoftMax, neuralnet
-    from methods import REINFORCE
+    from methods import REINFORCE, GPOMDP
 
     #CARTPOLE SCENARIO
     cartpole = CartPole(render=True)
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     trajectories = cartpole.simulate(10, 100, policy=softmax_policy)
 
     discount_factor = 0.9
-    method = REINFORCE(0.001, softmax_policy.neural_net.parameters, discount_factor)
+    method = GPOMDP(0.001, softmax_policy.neural_net.parameters, discount_factor)
 
     for ii in range(10): 
 
@@ -156,8 +156,8 @@ if __name__ == "__main__":
         actions = torch.tensor(trajectories["actions"][ii])   
         rewards = torch.tensor(trajectories["rewards"][ii])
         
-        score = softmax_policy.avg_score(observations, actions, 10)
-        method.grad_estimator(score, rewards)
+        logprob = softmax_policy.log_prob(observations, actions, 10)
+        method.grad_estimator(logprob, rewards)
         
     method.step()
     method.reset_grad()
@@ -176,6 +176,26 @@ if __name__ == "__main__":
     
     trajectories = pendulum.simulate(10, 100, policy=gaussian_policy)
 
+    discount_factor = 0.9
+    method = REINFORCE(0.001, gaussian_policy.mean.parameters, discount_factor)
+
+    for ii in range(10):
+
+        observations = torch.tensor(trajectories["states"][ii])
+        actions = torch.tensor(trajectories["actions"][ii])
+        rewards = torch.tensor(trajectories["rewards"][ii])
+
+        #date le osservazioni creo la distribuzione sulle azioni
+        logprob = gaussian_policy.log_prob(observations, actions, 10)
+        method.grad_estimator(logprob, rewards)
+
+    method.step()
+    method.reset_grad()
+
+    for param in gaussian_policy.mean.parameters():
+        print(param.grad)
+
+    import pdb; pdb.set_trace()
     #MOUNTAINCAR
     mountaincar = MountainCar(render=True)
 
@@ -197,6 +217,25 @@ if __name__ == "__main__":
     gaussian_policy = GaussianPolicy(net, torch.eye(action_size))
     
     trajectories = bipedalwalker.simulate(10, 100, policy=gaussian_policy)
+
+    discount_factor = 0.9
+    method = REINFORCE(0.001, gaussian_policy.mean.parameters, discount_factor)
+
+    for ii in range(10):
+
+        observations = torch.tensor(trajectories["states"][ii])
+        actions = torch.tensor(trajectories["actions"][ii])
+        rewards = torch.tensor(trajectories["rewards"][ii])
+
+        #date le osservazioni creo la distribuzione sulle azioni
+        logprob = gaussian_policy.log_prob(observations, actions, 10)
+        method.grad_estimator(logprob, rewards)
+
+    method.step()
+    method.reset_grad()
+
+    for param in gaussian_policy.mean.parameters():
+        print(param.grad)
 
     #LUNARLANDERCONTINUOUS
     lunarlandercontinuous = LunarLanderContinuous(render=True)
