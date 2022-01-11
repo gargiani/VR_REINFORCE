@@ -469,8 +469,7 @@ class STORMPG_GPOMDP(NumericalMethod):
         for ii, par in enumerate(self.parameters()):
             
             par.grad = (1-self.eta)*(self.v_old[ii] + grad_new[ii] - grad_old[ii]) + self.eta*grad_new[ii]
-
-            self.v_old[ii] = self.v_old[ii] + grad_new[ii] - grad_old[ii]
+            self.v_old[ii] = (1-self.eta)*(self.v_old[ii] + grad_new[ii] - grad_old[ii]) + self.eta*grad_new[ii]
 
 class STORMPG_REINFORCE(NumericalMethod):
 
@@ -531,4 +530,4 @@ class STORMPG_REINFORCE(NumericalMethod):
 
         for ii, par in enumerate(self.parameters()):
             par.grad = (1-self.eta)*(self.v_old[ii] + grad_new[ii] - grad_old[ii]) + self.eta*grad_new[ii]
-            self.v_old[ii] = self.v_old[ii] + grad_new[ii] - grad_old[ii]
+            self.v_old[ii] = (1-self.eta)*(self.v_old[ii] + grad_new[ii] - grad_old[ii]) + self.eta*grad_new[ii]
