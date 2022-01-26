@@ -84,7 +84,7 @@ for alpha in learning_rates:
 
     discount_factor = 0.9999
 
-    info = {"N": batch_size, "B": inner_batch_size, "iterations": iterations, "gamma": discount_factor, "alpha": alpha, "activation": "tanh", "hidden_layers": hidden_layers}
+    info = {"N": batch_size, "B": inner_batch_size, "iterations": iterations, "gamma": discount_factor, "alpha": alpha, "activation": "tanh", "hidden_layers": hidden_layers, "eta": args.eta}
 
    
     if args.method == "REINFORCE":
