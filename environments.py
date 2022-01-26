@@ -1,5 +1,3 @@
-from methods import GPOMDP, NumericalMethod
-from policies import GaussianPolicy
 import torch
 import gym
 import random
@@ -20,11 +18,11 @@ class Environment:
             self.env.seed(self.env_seed)   
             self.env.action_space.seed(self.env_seed)
 
-            torch.manual_seed(0)
-            torch.cuda.manual_seed(0)
-            torch.random.manual_seed(0)
-            np.random.seed(0)
-            random.seed(0)
+        torch.manual_seed(0)
+        torch.cuda.manual_seed(0)
+        torch.random.manual_seed(0)
+        np.random.seed(0)
+        random.seed(0)
 
     def simulate(self, N, policy=None, verbose=False):
 
@@ -39,11 +37,11 @@ class Environment:
             if verbose:
                 print("episode {} of {}\n".format(episode+1, N))
 
-            done = False
-
             states = []
             actions = []
             rewards = []
+
+            done = False
 
             observation = self.env.reset()
 
@@ -60,7 +58,7 @@ class Environment:
                 else:
                     policy.distribution(torch.tensor([observation], dtype=torch.float32))
                     action = policy.sample()[0].numpy()
-                observation, reward, done, info = self.env.step(action)
+                observation, reward, done, _ = self.env.step(action)
                 
                 tot_reward += reward
 
@@ -93,7 +91,7 @@ class Pendulum(Environment):
     def __init__(self, render=False, seed=None):
         super().__init__(render, seed)
 
-        self.env = gym.make('Pendulum-v1')
+        self.env = gym.make('Pendulum-v0')
         self.state_space = ("Continuous", 3)
         self.action_space = ("Continuous", 1)
 
