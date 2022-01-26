@@ -1,6 +1,4 @@
 import torch
-from torch.autograd import Variable
-import numpy as np
 
 class NumericalMethod:
 
@@ -52,7 +50,7 @@ class NumericalMethod:
 
     def step(self):
         
-        for ii, par in enumerate(self.parameters()):
+        for _, par in enumerate(self.parameters()):
             par.data = par.data + self.alpha*par.grad
           
     def reset_grad(self):
@@ -63,7 +61,6 @@ class NumericalMethod:
         self.reset_vgrad()
 
     def reset_vgrad(self):
-
         pass
 
 class REINFORCE(NumericalMethod):
@@ -161,7 +158,7 @@ class A2C(NumericalMethod):
 
     def critic_update(self):
 
-        for ii, par in enumerate(self.v_parameters()):
+        for _, par in enumerate(self.v_parameters()):
             par.data = par.data - self.beta*par.grad
         
 
@@ -413,7 +410,7 @@ class STORMPG_GPOMDP(NumericalMethod):
 
     def __init__(self, alpha, parameters, discount_factor, eta):
         super().__init__(alpha, parameters, discount_factor)
-        self.TINY = 10**-6
+        self.TINY = 10**-9
         self.v_old = None
         self.eta = eta
 
@@ -475,7 +472,7 @@ class STORMPG_REINFORCE(NumericalMethod):
 
     def __init__(self, alpha, parameters, discount_factor, eta):
         super().__init__(alpha, parameters, discount_factor)
-        self.TINY = 10**-6
+        self.TINY = 10**-9
         self.v_old = None
         self.eta = eta
 
