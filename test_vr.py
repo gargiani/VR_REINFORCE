@@ -1,18 +1,13 @@
-from typing import Sequence
 import torch
-import random
 import os
 import json
 import torch.nn as nn
-import numpy as np
 import argparse
-import matplotlib.pyplot as plt
-from environments import MountainCar, Acrobot, LunarLander, CartPole, Pendulum
+from environments import MountainCar, Acrobot, LunarLander, CartPole
 from methods import GPOMDP, A2C, REINFORCE, SVRPG_GPOMDP, SVRPG_REINFORCE, SRVRPG_GPOMDP, SRVRPG_REINFORCE, STORMPG_GPOMDP, STORMPG_REINFORCE
 from policies import Neural_SoftMax, GaussianPolicy, neuralnet
 
-#take as input the random seed
-parser = argparse.ArgumentParser(description='Training an RL Agent on the mountaincar Environemnt.')
+parser = argparse.ArgumentParser(description='Training an RL Agent with REINFORCE-type Methods on Different Gym OpenAI Environments.')
 parser.add_argument('-seed', type=int, default=0,
                     help='random seed')
 parser.add_argument('-iterations', type=int, default=50,
@@ -59,9 +54,7 @@ for alpha in learning_rates:
         environment = CartPole(render=False, seed=args.seed)
         environment.env._max_episode_steps = 200
     else:
-        environment = Pendulum(render=False, seed=args.seed)
-        environment.env.flag_terminal_reward = True
-        environment.env._max_episode_steps = 30
+        raise Exception("The selected environment is for now to available.")
 
     environment.set_seed()
 
@@ -70,18 +63,14 @@ for alpha in learning_rates:
 
     hidden_layers = [32, 32]
     net = neuralnet(state_size, action_size, hidden_layers, activation = nn.Tanh())
-
-    if args.env == 'Pendulum':
-        var = 10**-3
-        softmax_policy = GaussianPolicy(net, var*torch.eye(action_size))
-    else:
-        softmax_policy = Neural_SoftMax(net, environment.action_space[2])
+    
+    softmax_policy = Neural_SoftMax(net, environment.action_space[2])
 
     iterations = args.iterations
 
     inner_iterations = args.inner_iterations
 
-    if args.method in ['PAGEPG_GPOMDP','PAGEPG_REINFORCE', 'MOMENTUMPAGEPG_GPOMDP', 'MOMENTUMPAGEPG_REINFORCE', 'STORMPG_GPOMDP', 'STORMPG_REINFORCE']:
+    if args.method in ['PAGEPG_GPOMDP','PAGEPG_REINFORCE', 'STORMPG_GPOMDP', 'STORMPG_REINFORCE']:
         iterations = 1
         inner_iterations = args.iterations
     
@@ -95,7 +84,7 @@ for alpha in learning_rates:
 
     discount_factor = 0.9999
 
-    info = {"B": batch_size, "iterations": iterations, "gamma": discount_factor, "alpha": alpha, "activation": "tanh", "hidden_layers": hidden_layers}
+    info = {"N": batch_size, "B": inner_batch_size, "iterations": iterations, "gamma": discount_factor, "alpha": alpha, "activation": "tanh", "hidden_layers": hidden_layers}
 
    
     if args.method == "REINFORCE":
@@ -117,6 +106,10 @@ for alpha in learning_rates:
     elif args.method == "PAGEPG_GPOMDP":
         bernoulli = torch.distributions.bernoulli.Bernoulli(probs=args.pt)
         sequence = [bernoulli.sample() for i in range(10000)]
+        #sequence1 = [bernoulli.sample() for i in range(10000)]
+        #bernoulli = torch.distributions.bernoulli.Bernoulli(probs=0.6)
+        #sequence2 = [bernoulli.sample() for i in range(10000)]
+        #sequence = sequence1[:250] + sequence2[250:]
         seq = 0
         method = SRVRPG_GPOMDP(alpha, softmax_policy.neural_net.parameters, discount_factor)
     elif args.method == "PAGEPG_REINFORCE":
@@ -125,7 +118,6 @@ for alpha in learning_rates:
         seq = 0
         method = SRVRPG_REINFORCE(alpha, softmax_policy.neural_net.parameters, discount_factor)
     else:
-        #create a parametric representation of the value function
         V_function =  neuralnet(state_size, 1, [64, 64], activation = nn.Tanh())
         method = A2C(alpha, softmax_policy.neural_net.parameters, discount_factor, beta, V_function.parameters)
 
