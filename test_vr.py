@@ -44,14 +44,14 @@ beta = args.beta
 for alpha in learning_rates:
 
     if args.env == 'LunarLander':
-        environment = LunarLander(render=False, seed=args.seed)
+        environment = LunarLander(render=True, seed=args.seed)
     elif args.env == 'MountainCar':
         environment = MountainCar(render=True, seed=args.seed)
         environment.env._max_episode_steps = 1000
     elif args.env == 'Acrobot':
-        environment = Acrobot(render=False, seed=args.seed)
+        environment = Acrobot(render=True, seed=args.seed)
     elif args.env == 'Cartpole':
-        environment = CartPole(render=False, seed=args.seed)
+        environment = CartPole(render=True, seed=args.seed)
         environment.env._max_episode_steps = 200
     else:
         raise Exception("The selected environment is for now to available.")
