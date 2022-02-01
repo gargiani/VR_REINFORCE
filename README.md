@@ -1,2 +1,2 @@
-# VRPG
-Variance-Reduced REINFORCE-type Policy Gradient Methods
+# Variance-Reduced REINFORCE-type Policy Gradient Methods
+ 
